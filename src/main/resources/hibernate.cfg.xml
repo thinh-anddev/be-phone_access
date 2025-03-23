@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!--Database connection settings -->
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/tmdt</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password"></property>
+
+        <!--SQL dialect-->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!--JDBC connection pool(use built-in) -->
+        <property name="connection.pool_size">1</property>
+
+        <!--Disable the second-level cache -->
+        <property name="hibernate.cache.provider_class">org.hibernate.cache.NoCacheRegionFactoryAvailableException</property>
+
+        <!--Echo all executed SQL to stdout-->
+        <property name="show_sql">true</property>
+
+        <!-- Drop and re-create the database schema on startup -->
+        <property name="hbm2ddl.auto">update</property>
+
+
+        <!-- Entity mapping -->
+        <mapping class="com.TMDT.api.Api.springboot.models.Customer" />
+        <mapping class="com.TMDT.api.Api.springboot.models.Category" />
+        <mapping class="com.TMDT.api.Api.springboot.models.Product" />
+        <mapping class="com.TMDT.api.Api.springboot.models.Image" />
+        <mapping class="com.TMDT.api.Api.springboot.models.Address" />
+        <mapping class="com.TMDT.api.Api.springboot.models.Order" />
+        <mapping class="com.TMDT.api.Api.springboot.models.CartDetail" />
+        <mapping class="com.TMDT.api.Api.springboot.models.OrderDetail" />
+        <mapping class="com.TMDT.api.Api.springboot.models.PhoneCategory" />
+<!--        <mapping class="com.TMDT.api.Api.springboot.models. " />-->
+
+    </session-factory>
+</hibernate-configuration>

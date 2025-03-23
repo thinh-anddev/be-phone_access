@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 10px 0;
+        }
+
+        .details {
+            margin: 20px 0;
+        }
+
+        .details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .details table, .details th, .details td {
+            border: 1px solid #ddd;
+        }
+
+        .details th, .details td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        .details th {
+            background-color: #f4f4f4;
+        }
+
+        .total {
+            text-align: right;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>Order Confirmation</h2>
+    </div>
+    <div class="details">
+        <h3>Customer Information</h3>
+        <p><strong>Name:</strong> <span th:text="${name}"></span></p>
+        <p><strong>Email:</strong> <span th:text="${email}"></span></p>
+        <p><strong>Phone:</strong> <span th:text="${phone}"></span></p>
+
+        <h3>Order Details</h3>
+        <p><strong>Order ID:</strong> <span th:text="${orderId}"></span></p>
+        <p><strong>Delivery Address:</strong> <span th:text="${address}"></span></p>
+        <p><strong>Payment Date:</strong> <span th:text="${paymentDate}"></span></p>
+        <p><strong>Status:</strong> <span th:text="${status}"></span></p>
+        <p><strong>Delivery ID:</strong> <span th:text="${deliveryId}"></span></p>
+
+        <h3>Products</h3>
+        <table>
+            <tr>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Phone Category</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total Item</th>
+            </tr>
+            <tr th:each="detail : ${orderDetails}">
+                <td th:text="${detail.product.name}"></td>
+                <td th:text="${detail.product.category.name}"></td>
+                <td th:text="${detail.phoneCategory.name}"></td>
+                <td th:text="${#numbers.formatDecimal(detail.product.price, 1, 'COMMA', 2, 'POINT')} + ' VND'"></td>
+                <td th:text="${detail.quantity}"></td>
+                <td th:text="${#numbers.formatDecimal(detail.price, 1, 'COMMA', 2, 'POINT')} + ' VND'"></td>
+            </tr>
+        </table>
+
+        <div class="total">
+            <p><strong>Subtotal:</strong> <span
+                    th:text="${#numbers.formatDecimal(total, 1, 'COMMA', 2, 'POINT')} + ' VND'"></span></p>
+            <p><strong>Shipping Fee:</strong> <span
+                    th:text="${#numbers.formatDecimal(shippingFee, 1, 'COMMA', 2, 'POINT')} + ' VND'"></span></p>
+            <p><strong>Discount:</strong> <span
+                    th:text="${#numbers.formatDecimal(discount, 1, 'COMMA', 2, 'POINT')} + ' VND'"></span></p>
+            <p><strong>Total:</strong> <span
+                    th:text="${#numbers.formatDecimal(total - discount + shippingFee, 1, 'COMMA', 2, 'POINT')} + ' VND'"></span></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
