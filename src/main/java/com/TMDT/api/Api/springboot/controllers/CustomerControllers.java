@@ -9,12 +9,15 @@ import com.TMDT.api.Api.springboot.models.VerificationCode;
 import com.TMDT.api.Api.springboot.repositories.CustomerRepository;
 import com.TMDT.api.Api.springboot.service.CustomerService;
 import com.TMDT.api.Api.springboot.service.EmailService;
+import com.TMDT.api.Api.springboot.service.JwtService;
 import com.TMDT.api.Api.springboot.service.VerificationCodeService;
 import jakarta.mail.MessagingException;
 import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +40,8 @@ public class CustomerControllers {
     private EmailService emailService;
     @Autowired
     private VerificationCodeService verificationCodeService;
+    @Autowired
+    private JwtService jwtService;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -50,26 +55,42 @@ public class CustomerControllers {
     // /api/v1/products/1
     @GetMapping("/{id}")
     ResponseEntity<ResponseObject> getUserById(@PathVariable int id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Customer currentCustomer = customerService.getByEmail(email);
+
+        if (currentCustomer == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject("failed", "Unauthorized", ""));
+        }
+
+        if (currentCustomer.getId() != id) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ResponseObject("failed", "Forbidden", ""));
+        }
+
         Optional<Customer> foundUser = customerRepository.findById(id);
-        return foundUser.isPresent() ?
-                ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseObject("ok", "Success", foundUser)
-                ) :
-                ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseObject("failed", "Cannot find user by id = " + id, "")
-                );
+        if (foundUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("failed", "Cannot find user by id = " + id, ""));
+        }
+        return ResponseEntity.ok(new ResponseObject("ok", "Success", foundUser.get()));
     }
 
     @PostMapping("/login")
     ResponseEntity<ResponseObject> login(@RequestBody LoginReqDTO loginReqDTO) {
         Customer foundCustomer = customerService.login(loginReqDTO.getEmail(), loginReqDTO.getPassword());
-        return foundCustomer != null ?
-                ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseObject("ok", "Login successful", foundCustomer)
-                ) :
-                ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseObject("failed", "Invalid username or password", "")
-                );
+        if (foundCustomer == null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("failed", "Invalid username or password", "")
+            );
+        }
+
+        String token = jwtService.generateToken(foundCustomer.getEmail());
+        Map<String, Object> response = new HashMap<>();
+        response.put("customer", foundCustomer);
+        response.put("token", token);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("ok", "Login successful", response)
+        );
     }
 
     @PostMapping("/register")
@@ -92,12 +113,23 @@ public class CustomerControllers {
 
     @PutMapping("/update")
     ResponseEntity<ResponseObject> update(@RequestBody UpdateCustomerDTO customerDTO) {
-        Customer customer = customerService.updateInfo(customerDTO);
-        return customer == null ? ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("failed", "Update failed", ""))
-                :
-                ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseObject("ok", "Update successful", customer));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        Customer currentCustomer = customerService.getByEmail(email);
+        if (currentCustomer == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject("failed", "Unauthorized", ""));
+        }
+        if (customerDTO.getId() != currentCustomer.getId()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ResponseObject("failed", "Forbidden", ""));
+        }
+
+        Customer updatedCustomer = customerService.updateInfo(customerDTO);
+        if (updatedCustomer == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("failed", "Update failed", ""));
+        }
+
+        return ResponseEntity.ok(new ResponseObject("ok", "Update successful", updatedCustomer));
     }
 
     @GetMapping("/sendVerificationEmail")
