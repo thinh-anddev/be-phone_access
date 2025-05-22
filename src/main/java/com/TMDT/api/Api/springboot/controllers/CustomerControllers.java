@@ -142,7 +142,7 @@ public class CustomerControllers {
 
             emailService.sendHtmlEmailNewPassword(email, "New Password!", templateModel);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("ok", "Send new password successful", "")
+                    new ResponseObject("ok", "Send new password successful", templateModel.get("newPassword"))
             );
         } catch (MessagingException e) {
             e.printStackTrace();
