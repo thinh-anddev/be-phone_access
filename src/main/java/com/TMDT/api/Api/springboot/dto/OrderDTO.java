@@ -7,7 +7,7 @@ import java.util.List;
 
 public class OrderDTO {
     private int id;
-    private Customer customer;
+    private CustomerDTO customer;
     private List<OrderDetailDTO> orderDetails;
     private String address;
     private int discount;

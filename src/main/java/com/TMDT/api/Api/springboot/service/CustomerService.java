@@ -34,6 +34,9 @@ public class CustomerService {
         return customerRepository.findByEmail(email);
     }
 
+//    public CustomerDTO getByEmail(String email) {
+//        return customerRepository.findByEmail(email);
+//    }
     public Customer login(String email, String password) {
         Customer foundUser = customerRepository.findByEmail(email);
         return foundUser != null && passwordEncoder.matches(password, foundUser.getPassword()) ? foundUser : null;

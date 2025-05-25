@@ -40,6 +40,9 @@ public class ProductService {
     @Autowired
     PhoneCategoryRepository phoneCategoryRepository;
 
+    @Autowired
+    private ProductMapper productMapper;
+
     public Product getById(int id) {
         return productRepository.findFirstByIdAndStatusNot(id, 0);
     }
