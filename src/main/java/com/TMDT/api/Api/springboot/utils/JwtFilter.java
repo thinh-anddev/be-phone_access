@@ -1,5 +1,7 @@
 package com.TMDT.api.Api.springboot.utils;
 
+import com.TMDT.api.Api.springboot.dto.CustomerDTO;
+import com.TMDT.api.Api.springboot.mapper.CustomerMapper;
 import com.TMDT.api.Api.springboot.models.Customer;
 import com.TMDT.api.Api.springboot.repositories.CustomerRepository;
 import com.TMDT.api.Api.springboot.service.JwtService;
@@ -24,6 +26,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     private CustomerRepository customerRepository;
+    @Autowired
+    private CustomerMapper customerMapper;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -40,12 +44,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
         jwt = authHeader.substring(7);
         userEmail = jwtService.extractEmail(jwt);
-
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             Customer customer = customerRepository.findByEmail(userEmail);
-            if (jwtService.isTokenValid(jwt) && customer != null) {
+            CustomerDTO customerDTO = customerMapper.toDto(customer);
+            if (jwtService.isTokenValid(jwt) && customerDTO != null) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        customer, null, null
+                        customerDTO, null, null
                 );
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
@@ -53,7 +57,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-
         filterChain.doFilter(request, response);
     }
 }

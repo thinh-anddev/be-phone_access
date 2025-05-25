@@ -2,7 +2,7 @@ package com.TMDT.api.Api.springboot.controllers;
 
 import com.TMDT.api.Api.springboot.dto.ReqOrderDTO;
 import com.TMDT.api.Api.springboot.models.*;
-import com.TMDT.api.Api.springboot.repositories.CartRepository;
+import com.TMDT.api.Api.springboot.repositories.CartDetailRepository;
 import com.TMDT.api.Api.springboot.repositories.OrderDetailRepository;
 import com.TMDT.api.Api.springboot.repositories.OrderRepository;
 import com.TMDT.api.Api.springboot.service.*;
@@ -25,7 +25,7 @@ import java.util.*;
 @RequestMapping("/api/v1/payment")
 public class PaymentControllers {
     @Autowired
-    private CartService cartService;
+    private CartDetailService cartDetailService;
 
     @Autowired
     private CustomerService customerService;
@@ -46,7 +46,7 @@ public class PaymentControllers {
     private OrderDetailRepository orderDetailRepository;
 
     @Autowired
-    private CartRepository cartRepository;
+    private CartDetailRepository cartDetailRepository;
 
     @PostMapping("/create_payment")
     public ResponseEntity<?> createPayment(@RequestBody List<CartDetail> cartDetails, @RequestParam int point, @RequestParam int transportFee) throws UnsupportedEncodingException {
@@ -57,9 +57,9 @@ public class PaymentControllers {
         vnp_Params.put("vnp_Version", PaymentConfig.vnp_Version);
         vnp_Params.put("vnp_Command", PaymentConfig.vnp_Command);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf((cartService.calculateTotalAmount(cartDetails) - point * 1000 + transportFee) * 100));
+        vnp_Params.put("vnp_Amount", String.valueOf((cartDetailService.calculateTotalAmount(cartDetails) - point * 1000 + transportFee) * 100));
         vnp_Params.put("vnp_CurrCode", "VND");
-        vnp_Params.put("vnp_BankCode", "NCB");
+//        vnp_Params.put("vnp_BankCode", "VNBANK");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", "1");
@@ -116,9 +116,9 @@ public class PaymentControllers {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("failed", "Customer not found", ""));
         }
 
-        List<CartDetail> cartDetails = cartService.getListCart(orderDTO.getCartDetailIds());
+        List<CartDetail> cartDetails = cartDetailService.getListCart(orderDTO.getCartDetailIds());
 
-        int total = cartService.calculateTotalAmount(cartDetails);
+        int total = cartDetailService.calculateTotalAmount(cartDetails);
         customer.setPoint((customer.getPoint() - orderDTO.getPoint()) + total / 1000);
         customerService.update(customer);
 
@@ -150,7 +150,7 @@ public class PaymentControllers {
         }
 
         orderDetailRepository.saveAll(orderDetails);
-        cartRepository.deleteAllById(orderDTO.getCartDetailIds());
+        cartDetailRepository.deleteAllById(orderDTO.getCartDetailIds());
         order.setOrderDetails(orderDetails);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");

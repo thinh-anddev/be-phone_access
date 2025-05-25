@@ -19,7 +19,7 @@ public class OrderService {
     private OrderDetailRepository orderDetailRepository;
 
     @Autowired
-    private CartService cartService;
+    private CartDetailService cartDetailService;
 
     @Autowired
     private CustomerService customerService;
@@ -31,7 +31,7 @@ public class OrderService {
     private ProductService productService;
 
     @Autowired
-    private CartRepository cartRepository;
+    private CartDetailRepository cartDetailRepository;
     @Autowired
     private CustomerRepository customerRepository;
 
@@ -45,7 +45,7 @@ public class OrderService {
     public Order add(List<CartDetail> cartDetailIds, Order order, int addressId, int point) {
         List<CartDetail> cartDetails = new ArrayList<>();
         for (CartDetail cartDetail : cartDetailIds) {
-            cartDetails.add(cartService.get(cartDetail.getId()));
+            cartDetails.add(cartDetailService.get(cartDetail.getId()));
         }
 
         Customer customer = customerRepository.findById(order.getCustomer().getId()).get();
@@ -60,7 +60,7 @@ public class OrderService {
         order.setDiscount(point * 1000);
         order.setPaymentDate(LocalDateTime.now());
         order.setPaymentStatus(1);
-        order.setTotal(cartService.calculateTotalAmount(cartDetails));
+        order.setTotal(cartDetailService.calculateTotalAmount(cartDetails));
         order.setStatus(1);
 
         orderRepository.save(order);
@@ -77,7 +77,7 @@ public class OrderService {
         }
         orderDetailRepository.saveAll(orderDetails);
         order.setOrderDetails(orderDetails);
-        cartRepository.deleteAll(cartDetailIds);
+        cartDetailRepository.deleteAll(cartDetailIds);
 
         return clearProperty(order);
     }

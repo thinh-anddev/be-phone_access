@@ -13,7 +13,7 @@ import lombok.*;
 @Table(name = "cart_details")
 public class CartDetail {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto generate id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @JoinColumn(name = "product_id",
             foreignKey = @ForeignKey(name = "fk_cart_detail_product"))
@@ -25,7 +25,7 @@ public class CartDetail {
     @JoinColumn(name = "customer_id",
             foreignKey = @ForeignKey(name = "fk_cart_detail_customer"))
     @ManyToOne
-    @JsonBackReference
+//    @JsonBackReference
     private Customer customer;
     private int quantity;
     private int status;

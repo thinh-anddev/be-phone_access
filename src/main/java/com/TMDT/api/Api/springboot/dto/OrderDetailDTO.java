@@ -7,8 +7,7 @@ import jakarta.persistence.*;
 
 public class OrderDetailDTO {
     private int id;
-    private Order order;
-    private Product product;
+    private ProductDTO product;
     private PhoneCategory phoneCategory;
     private int quantity;
     private int price;

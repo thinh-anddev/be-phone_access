@@ -1,34 +1,39 @@
 package com.TMDT.api.Api.springboot.service;
 
 import com.TMDT.api.Api.springboot.dto.CartDetailDTO;
+import com.TMDT.api.Api.springboot.mapper.CartDetailMapper;
 import com.TMDT.api.Api.springboot.models.CartDetail;
-import com.TMDT.api.Api.springboot.repositories.CartRepository;
+import com.TMDT.api.Api.springboot.repositories.CartDetailRepository;
 import com.TMDT.api.Api.springboot.repositories.CustomerRepository;
 import com.TMDT.api.Api.springboot.repositories.PhoneCategoryRepository;
 import com.TMDT.api.Api.springboot.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class CartService {
+public class CartDetailService {
     @Autowired
-    private CartRepository cartRepository;
+    private CartDetailRepository cartDetailRepository;
     @Autowired
     private ProductRepository productRepository;
     @Autowired
     private PhoneCategoryRepository phoneCategoryRepository;
     @Autowired
     private CustomerRepository customerRepository;
+    @Autowired
+    private CartDetailMapper cartDetailMapper;
 
-    public List<CartDetail> getCartByCustomerId(int customerId) {
-        return clearProperties(cartRepository.findByCustomer_Id(customerId));
+    public List<CartDetailDTO> getCartByCustomerId(int customerId) {
+        return cartDetailMapper.toDtoList(cartDetailRepository.findByCustomer_Id(customerId));
     }
 
+
     public CartDetail get(int id) {
-        return clearProperty(cartRepository.findById(id).orElse(null));
+        return clearProperty(cartDetailRepository.findById(id).orElse(null));
     }
 
     public CartDetail add(CartDetailDTO cartDetailDTO) {
@@ -38,28 +43,28 @@ public class CartService {
         cartDetail.setQuantity(cartDetailDTO.getQuantity());
         cartDetail.setCustomer(customerRepository.findById(cartDetailDTO.getCustomerId()).orElse(null));
         cartDetail.setStatus(1);
-        return cartRepository.save(cartDetail);
+        return cartDetailRepository.save(cartDetail);
     }
 
     public void delete(int id) {
-        cartRepository.deleteById(id);
+        cartDetailRepository.deleteById(id);
     }
 
     public void deleteAll(List<CartDetail> cartDetails) {
-        cartRepository.deleteAll(cartDetails);
+        cartDetailRepository.deleteAll(cartDetails);
     }
 
     public void deleteAllByCustomerId(int customerId) {
-        cartRepository.deleteCartDetailByCustomer_Id(customerId);
+        cartDetailRepository.deleteCartDetailByCustomer_Id(customerId);
     }
 
     public CartDetail update(int id, int quantity) {
-        CartDetail cartDetail = cartRepository.findById(id).orElse(null);
+        CartDetail cartDetail = cartDetailRepository.findById(id).orElse(null);
         if (cartDetail == null) {
             return null;
         }
         cartDetail.setQuantity(quantity);
-        return cartRepository.save(cartDetail);
+        return cartDetailRepository.save(cartDetail);
     }
 
 
@@ -85,22 +90,24 @@ public class CartService {
     public int calculateTotalAmount(List<CartDetail> cartDetails) {
         List<CartDetail> cartDetails1 = new ArrayList<>();
         for (CartDetail cartDetail : cartDetails) {
-            cartDetails1.add(cartRepository.findById(cartDetail.getId()).orElse(null));
+            cartDetails1.add(cartDetailRepository.findById(cartDetail.getId()).orElse(null));
         }
         int totalAmount = 0;
         for (CartDetail cartDetail : cartDetails1) {
-            totalAmount += cartDetail.getProduct().getPrice() * cartDetail.getQuantity();
+            if (cartDetail != null) {
+                totalAmount += (int) (cartDetail.getProduct().getPrice() * cartDetail.getQuantity());
+            }
+
         }
         return totalAmount;
     }
 
-    public CartDetail getCartByCustomerIdAndProductIdAndPhoneCategoryId(int customerId, int productId, int phoneCategoryId) {
-        CartDetail cartDetail;
-        cartDetail = cartRepository.findByCustomer_IdAndProduct_IdAndPhoneCategory_Id(customerId, productId, phoneCategoryId);
-        return cartDetail;
+    public CartDetailDTO getCartByCustomerIdAndProductIdAndPhoneCategoryId(int customerId, int productId, int phoneCategoryId) {
+
+        return cartDetailMapper.toDto(cartDetailRepository.findByCustomer_IdAndProduct_IdAndPhoneCategory_Id(customerId, productId, phoneCategoryId));
     }
 
     public List<CartDetail> getListCart(List<Integer> cartDetailIds) {
-        return cartRepository.findAllById(cartDetailIds);
+        return cartDetailRepository.findAllById(cartDetailIds);
     }
 }
