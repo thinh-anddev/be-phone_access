@@ -59,4 +59,13 @@ public class JwtFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        return path.equals("/api/v1/customers/login") ||
+                path.equals("/api/v1/customers/register") ||
+                path.equals("/api/v1/customers/sendVerificationEmail") ||
+                path.equals("/api/v1/customers/sendNewPasswordEmail") ||
+                path.equals("/api/v1/customers/forgotPassword");
+    }
 }
