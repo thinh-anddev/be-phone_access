@@ -75,7 +75,7 @@ public class CustomerControllers {
     ResponseEntity<ResponseObject> login(@RequestBody LoginReqDTO loginReqDTO) {
         Customer foundCustomer = customerService.login(loginReqDTO.getEmail(), loginReqDTO.getPassword());
         if (foundCustomer == null) {
-            return ResponseEntity.status(HttpStatus.OK).body(
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     new ResponseObject("failed", "Invalid username or password", "")
             );
         }
