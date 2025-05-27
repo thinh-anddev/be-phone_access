@@ -184,7 +184,7 @@ public class CustomerControllers {
         }
     }
 
-    @PostMapping("forgotPassword")
+    @PostMapping("/forgotPassword")
     ResponseEntity<ResponseObject> forgotPassword(@RequestBody ForgotPasswordDTO forgotPasswordDTO) {
         Customer customer = customerService.getByEmail(forgotPasswordDTO.getEmail());
         if (customer == null) {
