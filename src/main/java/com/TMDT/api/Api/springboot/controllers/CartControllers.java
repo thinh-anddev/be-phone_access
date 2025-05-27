@@ -64,7 +64,7 @@ public class CartControllers {
     }
 
 
-    public CartDetail clearProperty(CartDetail cartDetail) {
+    public void clearProperty(CartDetail cartDetail) {
         cartDetail.setCustomer(null);
         cartDetail.getProduct().setCategory(null);
         if (cartDetail.getProduct().getProductPhoneCategories() != null) {
@@ -73,7 +73,6 @@ public class CartControllers {
         if (cartDetail.getPhoneCategory() != null && cartDetail.getPhoneCategory().getProductPhoneCategories() != null) {
             cartDetail.getPhoneCategory().getProductPhoneCategories().clear();
         }
-        return cartDetail;
     }
 
     public List<CartDetail> clearProperties(List<CartDetail> cartDetails) {

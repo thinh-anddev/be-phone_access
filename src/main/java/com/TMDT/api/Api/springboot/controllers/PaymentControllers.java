@@ -1,7 +1,10 @@
 package com.TMDT.api.Api.springboot.controllers;
 
 import com.TMDT.api.Api.springboot.dto.ReqOrderDTO;
-import com.TMDT.api.Api.springboot.models.*;
+import com.TMDT.api.Api.springboot.models.CartDetail;
+import com.TMDT.api.Api.springboot.models.Customer;
+import com.TMDT.api.Api.springboot.models.Order;
+import com.TMDT.api.Api.springboot.models.OrderDetail;
 import com.TMDT.api.Api.springboot.repositories.CartDetailRepository;
 import com.TMDT.api.Api.springboot.repositories.OrderDetailRepository;
 import com.TMDT.api.Api.springboot.repositories.OrderRepository;
@@ -84,15 +87,15 @@ public class PaymentControllers {
         while (itr.hasNext()) {
             String fieldName = (String) itr.next();
             String fieldValue = (String) vnp_Params.get(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+            if ((fieldValue != null) && (!fieldValue.isEmpty())) {
                 //Build hash data
                 hashData.append(fieldName);
                 hashData.append('=');
-                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
                 //Build query
-                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
+                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII));
                 query.append('=');
-                query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
                 if (itr.hasNext()) {
                     query.append('&');
                     hashData.append('&');

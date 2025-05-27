@@ -17,13 +17,9 @@ public class PhoneCategoryControllers {
 
     @Autowired
     private PhoneCategoryRepository phoneCategoryRepository;
-    @GetMapping
-    public ResponseEntity<List<PhoneCategory>> getAll(){
-        return new ResponseEntity<>(phoneCategoryRepository.findAll(), HttpStatus.OK) ;
-    }
 
-//    public List<PhoneCategory> getPhoneCategoryByProduct(int product_id){
-//        return phoneCategoryRepository.findById(product_id);
-//    }
-//    đang xem thử mqh many to many của phoneCategory - product có OK không
+    @GetMapping
+    public ResponseEntity<List<PhoneCategory>> getAll() {
+        return new ResponseEntity<>(phoneCategoryRepository.findAll(), HttpStatus.OK);
+    }
 }
