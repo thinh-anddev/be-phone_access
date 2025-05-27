@@ -74,6 +74,8 @@ public class CustomerControllers {
     @PostMapping("/login")
     ResponseEntity<ResponseObject> login(@RequestBody LoginReqDTO loginReqDTO) {
         Customer foundCustomer = customerService.login(loginReqDTO.getEmail(), loginReqDTO.getPassword());
+        System.out.println(foundCustomer.toString());
+
         CustomerDTO customerDTO = customerMapper.toDto(foundCustomer);
         if (foundCustomer == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
