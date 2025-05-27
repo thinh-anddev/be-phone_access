@@ -1,9 +1,7 @@
 package com.TMDT.api.Api.springboot.controllers;
 
-import com.TMDT.api.Api.springboot.dto.ForgotPasswordDTO;
-import com.TMDT.api.Api.springboot.dto.LoginReqDTO;
-import com.TMDT.api.Api.springboot.dto.UpdateCustomerDTO;
-import com.TMDT.api.Api.springboot.dto.UpdateCustomerPasswordDTO;
+import com.TMDT.api.Api.springboot.dto.*;
+import com.TMDT.api.Api.springboot.mapper.CustomerMapper;
 import com.TMDT.api.Api.springboot.models.Customer;
 import com.TMDT.api.Api.springboot.models.VerificationCode;
 import com.TMDT.api.Api.springboot.repositories.CustomerRepository;
@@ -42,6 +40,8 @@ public class CustomerControllers {
     private VerificationCodeService verificationCodeService;
     @Autowired
     private JwtService jwtService;
+    @Autowired
+    private CustomerMapper customerMapper;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -74,6 +74,7 @@ public class CustomerControllers {
     @PostMapping("/login")
     ResponseEntity<ResponseObject> login(@RequestBody LoginReqDTO loginReqDTO) {
         Customer foundCustomer = customerService.login(loginReqDTO.getEmail(), loginReqDTO.getPassword());
+        CustomerDTO customerDTO = customerMapper.toDto(foundCustomer);
         if (foundCustomer == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     new ResponseObject("failed", "Invalid username or password", "")
@@ -82,7 +83,7 @@ public class CustomerControllers {
 
         String token = jwtService.generateToken(foundCustomer.getEmail());
         Map<String, Object> response = new HashMap<>();
-        response.put("customer", foundCustomer);
+        response.put("customer", customerDTO);
         response.put("token", token);
 
         return ResponseEntity.status(HttpStatus.OK).body(
