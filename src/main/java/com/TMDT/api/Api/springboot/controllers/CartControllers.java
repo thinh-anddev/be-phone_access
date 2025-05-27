@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping(path = "/api/v1/carts")
@@ -59,7 +60,7 @@ public class CartControllers {
     @PostMapping("/getTotalPrice")
     public ResponseEntity<ResponseObject> getTotalPrice(@RequestBody List<CartDetail> cartDetails) {
         if (cartDetails == null) return ResponseEntity.ok(new ResponseObject("ok", "Success", ""));
-        return ResponseEntity.ok(new ResponseObject("ok", "Success", cartDetailService.calculateTotalAmount(cartDetails)));
+        return ResponseEntity.ok(new ResponseObject("ok", "Success", Optional.of(cartDetailService.calculateTotalAmount(cartDetails))));
     }
 
 
