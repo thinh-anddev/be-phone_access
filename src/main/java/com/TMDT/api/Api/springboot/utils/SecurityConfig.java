@@ -28,6 +28,7 @@ public class SecurityConfig {
                                 "/api/v1/customers/register",
                                 "/api/v1/customers/sendVerificationEmail",
                                 "/api/v1/customers/sendNewPasswordEmail",
+                                "/api/v1/customers/forgotPassword",
                                 "/api/v1/categories",
                                 "/api/v1/products/getByFilter",
                                 "/api/v1/carts/getTotalPrice",

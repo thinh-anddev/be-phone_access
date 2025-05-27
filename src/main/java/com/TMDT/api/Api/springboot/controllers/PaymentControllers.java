@@ -159,11 +159,11 @@ public class PaymentControllers {
         templateModel.put("name", customer.getUsername());
         templateModel.put("email", customer.getEmail());
         templateModel.put("phone", customer.getPhone());
-        templateModel.put("orderId", order.getId());
+        templateModel.put("orderId", Optional.of(order.getId()));
         templateModel.put("address", order.getAddress());
-        templateModel.put("total", order.getTotal());
-        templateModel.put("discount", order.getDiscount());
-        templateModel.put("shippingFee", order.getShippingFee());
+        templateModel.put("total", Optional.of(order.getTotal()));
+        templateModel.put("discount", Optional.of(order.getDiscount()));
+        templateModel.put("shippingFee", Optional.of(order.getShippingFee()));
         templateModel.put("paymentDate", order.getPaymentDate().format(formatter));
         templateModel.put("status", order.getPaymentStatus() == 2 ? "Unpaid" : "Paid");
         templateModel.put("deliveryId", order.getDeliveryId());
