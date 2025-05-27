@@ -1,11 +1,9 @@
 package com.TMDT.api.Api.springboot.controllers;
 
-import com.TMDT.api.Api.springboot.dto.ProductDTO;
 import com.TMDT.api.Api.springboot.dto.ProductInsertDTO;
 import com.TMDT.api.Api.springboot.dto.ProductUpdateDTO;
 import com.TMDT.api.Api.springboot.models.Product;
 import com.TMDT.api.Api.springboot.repositories.CategoryRepository;
-
 import com.TMDT.api.Api.springboot.repositories.ProductRepository;
 import com.TMDT.api.Api.springboot.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +39,7 @@ public class ProductControllers {
             @RequestParam(defaultValue = "asc") String order,
             @RequestParam(defaultValue = "id") String orderBy) {
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Success", productService.getByFilter(category == null || "".equals(category) ? null : category, page - 1, limit, order, orderBy)));
+                new ResponseObject("ok", "Success", productService.getByFilter(category == null || category.isEmpty() ? null : category, page - 1, limit, order, orderBy)));
     }
 
     @GetMapping("/getByCategory")

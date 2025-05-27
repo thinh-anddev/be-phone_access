@@ -68,10 +68,7 @@ public class CustomerControllers {
         }
 
         Optional<Customer> foundUser = customerRepository.findById(id);
-        if (foundUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("failed", "Cannot find user by id = " + id, ""));
-        }
-        return ResponseEntity.ok(new ResponseObject("ok", "Success", foundUser.get()));
+        return foundUser.map(customer -> ResponseEntity.ok(new ResponseObject("ok", "Success", customer))).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("failed", "Cannot find user by id = " + id, "")));
     }
 
     @PostMapping("/login")

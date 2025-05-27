@@ -1,9 +1,5 @@
 package com.TMDT.api.Api.springboot.dto;
 
-import com.TMDT.api.Api.springboot.models.Customer;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.*;
-
 public class AddressDTO {
     private int id;
     private int provinceId;

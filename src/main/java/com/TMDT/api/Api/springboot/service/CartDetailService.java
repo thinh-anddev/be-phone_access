@@ -9,10 +9,10 @@ import com.TMDT.api.Api.springboot.repositories.PhoneCategoryRepository;
 import com.TMDT.api.Api.springboot.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class CartDetailService {
@@ -33,7 +33,7 @@ public class CartDetailService {
 
 
     public CartDetail get(int id) {
-        return clearProperty(cartDetailRepository.findById(id).orElse(null));
+        return clearProperty(Objects.requireNonNull(cartDetailRepository.findById(id).orElse(null)));
     }
 
     public CartDetail add(CartDetailDTO cartDetailDTO) {

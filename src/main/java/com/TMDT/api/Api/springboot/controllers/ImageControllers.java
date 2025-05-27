@@ -1,8 +1,6 @@
 package com.TMDT.api.Api.springboot.controllers;
 
-import com.TMDT.api.Api.springboot.models.Customer;
 import com.TMDT.api.Api.springboot.models.Image;
-import com.TMDT.api.Api.springboot.repositories.CustomerRepository;
 import com.TMDT.api.Api.springboot.repositories.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

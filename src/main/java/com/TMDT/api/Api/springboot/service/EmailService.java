@@ -48,6 +48,7 @@ public class EmailService {
 
         javaMailSender.send(message);
     }
+
     public void sendHtmlEmailPaymentSuccess(String to, String subject, Map<String, Object> templateModel) throws MessagingException {
         Context context = new Context();
         context.setVariables(templateModel);

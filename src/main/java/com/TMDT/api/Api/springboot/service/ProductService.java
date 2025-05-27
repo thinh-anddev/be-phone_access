@@ -1,7 +1,6 @@
 package com.TMDT.api.Api.springboot.service;
 
 import com.TMDT.api.Api.springboot.dto.ListProductDTO;
-import com.TMDT.api.Api.springboot.dto.ProductDTO;
 import com.TMDT.api.Api.springboot.dto.ProductInsertDTO;
 import com.TMDT.api.Api.springboot.dto.ProductUpdateDTO;
 import com.TMDT.api.Api.springboot.mapper.ProductMapper;
@@ -13,12 +12,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -179,7 +176,7 @@ public class ProductService {
         return product;
     }
 
-    public Product clearProperty(Product product) {
+    public void clearProperty(Product product) {
         product.getProductPhoneCategories().forEach(productPhoneCategory -> {
             productPhoneCategory.setProduct(null);
             if (productPhoneCategory.getPhoneCategory() != null)
@@ -190,7 +187,6 @@ public class ProductService {
         });
         if (product.getCategory() != null)
             product.getCategory().setProducts(null);
-        return product;
     }
 
     public List<Product> clearProperties(List<Product> products) {

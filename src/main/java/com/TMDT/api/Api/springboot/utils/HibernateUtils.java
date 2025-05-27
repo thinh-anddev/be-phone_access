@@ -1,7 +1,5 @@
 package com.TMDT.api.Api.springboot.utils;
 
-import com.TMDT.api.Api.springboot.models.Category;
-import com.TMDT.api.Api.springboot.models.Product;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
@@ -32,6 +30,7 @@ public class HibernateUtils {
     public static void close() {
         getSessionFactory().close();
     }
+
     public static void main(String[] args) {
 
         try (Session session = HibernateUtils.getSessionFactory().openSession();) {

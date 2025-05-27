@@ -5,12 +5,12 @@ import com.TMDT.api.Api.springboot.dto.UpdateCustomerPasswordDTO;
 import com.TMDT.api.Api.springboot.models.Customer;
 import com.TMDT.api.Api.springboot.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 @Service
@@ -27,14 +27,14 @@ public class CustomerService {
     }
 
     public Customer get(int id) {
-        return clearProperty(customerRepository.findById(id).orElse(null));
+        return clearProperty(Objects.requireNonNull(customerRepository.findById(id).orElse(null)));
     }
 
     public Customer getByEmail(String email) {
         return customerRepository.findByEmail(email);
     }
 
-//    public CustomerDTO getByEmail(String email) {
+    //    public CustomerDTO getByEmail(String email) {
 //        return customerRepository.findByEmail(email);
 //    }
     public Customer login(String email, String password) {
