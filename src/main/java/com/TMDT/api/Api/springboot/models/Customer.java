@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
+//@ToString
 @Table(name = "customers")
 public class Customer {
     @Id
@@ -42,4 +42,17 @@ public class Customer {
     @OneToMany(mappedBy = "customer")
     private List<CartDetail> cartDetails;
 
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "status=" + status +
+                ", point=" + point +
+                ", role=" + role +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", username='" + username + '\'' +
+                ", id=" + id +
+                '}';
+    }
 }

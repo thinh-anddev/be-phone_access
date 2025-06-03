@@ -1,5 +1,12 @@
 package com.TMDT.api.Api.springboot.dto;
 
+
+import lombok.*;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class AddressDTO {
     private int id;
     private int provinceId;

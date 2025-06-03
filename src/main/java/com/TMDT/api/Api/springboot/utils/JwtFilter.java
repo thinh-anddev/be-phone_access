@@ -46,10 +46,10 @@ public class JwtFilter extends OncePerRequestFilter {
         userEmail = jwtService.extractEmail(jwt);
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             Customer customer = customerRepository.findByEmail(userEmail);
-            CustomerDTO customerDTO = customerMapper.toDto(customer);
-            if (jwtService.isTokenValid(jwt) && customerDTO != null) {
+//            CustomerDTO customerDTO = customerMapper.toDto(customer);
+            if (jwtService.isTokenValid(jwt) && customer != null) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        customerDTO, null, null
+                        customer, null, null
                 );
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
