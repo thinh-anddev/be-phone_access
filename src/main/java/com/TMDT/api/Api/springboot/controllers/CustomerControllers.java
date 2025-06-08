@@ -219,6 +219,4 @@ public class CustomerControllers {
                         new ResponseObject("failed", "Update password fail", "")
                 );
     }
-
-
 }

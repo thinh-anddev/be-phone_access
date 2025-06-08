@@ -9,7 +9,6 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {ProductMapper.class, PhoneCategoryMapper.class})
 public interface CartDetailMapper {
-    CartDetailMapper INSTANCE = Mappers.getMapper(CartDetailMapper.class);
 
     CartDetailDTO toDto(CartDetail cartDetail);
 

@@ -14,7 +14,7 @@ import java.util.List;
 public class ImageControllers {
     @Autowired
     ImageRepository imageRepository;
-
+    @Autowired
     // get /api/v1/users/getAll
     @GetMapping
     List<Image> get() {
