@@ -9,9 +9,9 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface AddressMapper {
-    AddressMapper INSTANCE = Mappers.getMapper(AddressMapper.class);
 
     AddressDTO toDto(Address address);
 
     List<AddressDTO> toListDto(List<Address> addresses);
+    Address toEntity(AddressDTO dto);
 }
