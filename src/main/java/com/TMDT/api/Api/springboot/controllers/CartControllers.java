@@ -1,10 +1,15 @@
 package com.TMDT.api.Api.springboot.controllers;
 
 import com.TMDT.api.Api.springboot.dto.CartDetailDTO;
+import com.TMDT.api.Api.springboot.dto.CustomerDTO;
+import com.TMDT.api.Api.springboot.mapper.AddressMapper;
 import com.TMDT.api.Api.springboot.models.CartDetail;
 import com.TMDT.api.Api.springboot.service.CartDetailService;
+import com.TMDT.api.Api.springboot.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +21,17 @@ import java.util.Optional;
 public class CartControllers {
     @Autowired
     private CartDetailService cartDetailService;
+    @Autowired
+    private CustomerService customerService;
 
     @GetMapping("/getByCustomerId/{customerId}")
     public ResponseEntity<ResponseObject> getCartByCustomerId(@PathVariable int customerId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+//        authentication.
+//        System.out.println("===============" + authentication.toString());
+//        CustomerDTO currentCustomer = customerService.getByEmail(email);
+//        List<CartDetailDTO> data = cartDetailService.getCartByCustomerId(currentCustomer.getId());
         List<CartDetailDTO> data = cartDetailService.getCartByCustomerId(customerId);
         return ResponseEntity.ok(new ResponseObject("ok", "Success", data));
     }
@@ -58,9 +71,9 @@ public class CartControllers {
     }
 
     @PostMapping("/getTotalPrice")
-    public ResponseEntity<ResponseObject> getTotalPrice(@RequestBody List<CartDetail> cartDetails) {
-        if (cartDetails == null) return ResponseEntity.ok(new ResponseObject("ok", "Success", ""));
-        return ResponseEntity.ok(new ResponseObject("ok", "Success", Optional.of(cartDetailService.calculateTotalAmount(cartDetails))));
+    public ResponseEntity<ResponseObject> getTotalPrice(@RequestBody List<CartDetailDTO> cartDetailDtos) {
+        if (cartDetailDtos == null) return ResponseEntity.ok(new ResponseObject("ok", "Success", ""));
+        return ResponseEntity.ok(new ResponseObject("ok", "Success", Optional.of(cartDetailService.calculateTotalAmount(cartDetailDtos))));
     }
 
 

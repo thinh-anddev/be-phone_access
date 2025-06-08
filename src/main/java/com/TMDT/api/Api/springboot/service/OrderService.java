@@ -1,6 +1,8 @@
 package com.TMDT.api.Api.springboot.service;
 
+import com.TMDT.api.Api.springboot.dto.OrderDTO;
 import com.TMDT.api.Api.springboot.dto.RevenueCategory;
+import com.TMDT.api.Api.springboot.mapper.OrderMapper;
 import com.TMDT.api.Api.springboot.models.*;
 import com.TMDT.api.Api.springboot.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,50 +39,57 @@ public class OrderService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private OrderMapper orderMapper;
 
     public List<Order> getAll() {
         return orderRepository.findAll();
     }
 
-    public Order add(List<CartDetail> cartDetailIds, Order order, int addressId, int point) {
-        List<CartDetail> cartDetails = new ArrayList<>();
-        for (CartDetail cartDetail : cartDetailIds) {
-            cartDetails.add(cartDetailService.get(cartDetail.getId()));
-        }
-
-        Customer customer = customerRepository.findById(order.getCustomer().getId()).get();
-        customer.setPoint(customer.getPoint() - point);
-        customerRepository.save(customer);
-        Address address = addressRepository.findById(addressId);
-
-        order.setAddress(address.getSubAddress() + ", " + address.getWardValue() + ", " + address.getDistrictValue() + ", " + address.getProvinceValue());
-        order.setCustomer(customer);
-        order.setCreateDate(LocalDateTime.now());
-        order.setDeliveryId(order.getDeliveryId());
-        order.setDiscount(point * 1000);
-        order.setPaymentDate(LocalDateTime.now());
-        order.setPaymentStatus(1);
-        order.setTotal(cartDetailService.calculateTotalAmount(cartDetails));
-        order.setStatus(1);
-
-        orderRepository.save(order);
-        List<OrderDetail> orderDetails = new ArrayList<>();
-        for (CartDetail cartDetail : cartDetails) {
-            OrderDetail orderDetail = new OrderDetail();
-            orderDetail.setProduct(cartDetail.getProduct());
-            orderDetail.setQuantity(cartDetail.getQuantity());
-            orderDetail.setOrder(order);
-            orderDetail.setStatus(1);
-            orderDetail.setPrice((int) (cartDetail.getProduct().getPrice() * cartDetail.getQuantity()));
-            orderDetail.setPhoneCategory(cartDetail.getPhoneCategory());
-            orderDetails.add(orderDetail);
-        }
-        orderDetailRepository.saveAll(orderDetails);
-        order.setOrderDetails(orderDetails);
-        cartDetailRepository.deleteAll(cartDetailIds);
-
-        return clearProperty(order);
+    public OrderDTO add(OrderDTO orderDTO) {
+        Order order = orderMapper.toEntity(orderDTO);
+        return orderMapper.toDto(orderRepository.save(order));
     }
+
+//    public Order add(List<CartDetail> cartDetailIds, Order order, int addressId, int point) {
+//        List<CartDetail> cartDetails = new ArrayList<>();
+//        for (CartDetail cartDetail : cartDetailIds) {
+//            cartDetails.add(cartDetailService.get(cartDetail.getId()));
+//        }
+//
+//        Customer customer = customerRepository.findById(order.getCustomer().getId()).get();
+//        customer.setPoint(customer.getPoint() - point);
+//        customerRepository.save(customer);
+//        Address address = addressRepository.findById(addressId);
+//
+//        order.setAddress(address.getSubAddress() + ", " + address.getWardValue() + ", " + address.getDistrictValue() + ", " + address.getProvinceValue());
+//        order.setCustomer(customer);
+//        order.setCreateDate(LocalDateTime.now());
+//        order.setDeliveryId(order.getDeliveryId());
+//        order.setDiscount(point * 1000);
+//        order.setPaymentDate(LocalDateTime.now());
+//        order.setPaymentStatus(1);
+//        order.setTotal(cartDetailService.calculateTotalAmount(cartDetails));
+//        order.setStatus(1);
+//
+//        orderRepository.save(order);
+//        List<OrderDetail> orderDetails = new ArrayList<>();
+//        for (CartDetail cartDetail : cartDetails) {
+//            OrderDetail orderDetail = new OrderDetail();
+//            orderDetail.setProduct(cartDetail.getProduct());
+//            orderDetail.setQuantity(cartDetail.getQuantity());
+//            orderDetail.setOrder(order);
+//            orderDetail.setStatus(1);
+//            orderDetail.setPrice((int) (cartDetail.getProduct().getPrice() * cartDetail.getQuantity()));
+//            orderDetail.setPhoneCategory(cartDetail.getPhoneCategory());
+//            orderDetails.add(orderDetail);
+//        }
+//        orderDetailRepository.saveAll(orderDetails);
+//        order.setOrderDetails(orderDetails);
+//        cartDetailRepository.deleteAll(cartDetailIds);
+//
+//        return clearProperty(order);
+//    }
 
     public Order clearProperty(Order order) {
 //        order.setCustomer(null);
@@ -139,8 +148,11 @@ public class OrderService {
         return orderRepository.getTotalRevenueForCategoryInMonthAndYear(categoryId, year, month) == null ? 0 : orderRepository.getTotalRevenueForCategoryInMonthAndYear(categoryId, year, month);
     }
 
-    public List<Order> getByCustomer(int customerId) {
-        return orderRepository.findByCustomer_Id(customerId);
+    //    public List<Order> getByCustomer(int customerId) {
+//        return orderRepository.findByCustomer_Id(customerId);
+//    }
+    public List<OrderDTO> getByCustomer(int customerId) {
+        return orderMapper.toListDto(orderRepository.findByCustomer_Id(customerId));
     }
 
     public Order cancelOrder(int orderId) {

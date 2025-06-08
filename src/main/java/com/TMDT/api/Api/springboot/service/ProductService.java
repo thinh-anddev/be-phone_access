@@ -1,8 +1,7 @@
 package com.TMDT.api.Api.springboot.service;
 
-import com.TMDT.api.Api.springboot.dto.ListProductDTO;
-import com.TMDT.api.Api.springboot.dto.ProductInsertDTO;
-import com.TMDT.api.Api.springboot.dto.ProductUpdateDTO;
+import com.TMDT.api.Api.springboot.dto.*;
+import com.TMDT.api.Api.springboot.mapper.CategoryMapper;
 import com.TMDT.api.Api.springboot.mapper.ProductMapper;
 import com.TMDT.api.Api.springboot.models.*;
 import com.TMDT.api.Api.springboot.repositories.*;
@@ -39,13 +38,16 @@ public class ProductService {
 
     @Autowired
     private ProductMapper productMapper;
+    @Autowired
+    private CategoryMapper categoryMapper;
 
-    public Product getById(int id) {
-        return productRepository.findFirstByIdAndStatusNot(id, 0);
+    public ProductDTO getById(int id) {
+        Product product = productRepository.findFirstByIdAndStatusNot(id, 0);
+        return productMapper.toDTO(product);
     }
 
-    public List<Product> getAll() {
-        return productRepository.findAll();
+    public List<ProductDTO> getAll() {
+        return productMapper.toListDTO(productRepository.findAll());
     }
 
     public ListProductDTO getByFilter(String category, int page, int limit, String order, String orderBy) {
@@ -53,20 +55,19 @@ public class ProductService {
         sort = order.equalsIgnoreCase("desc") ? sort.descending() : sort.ascending();
         Pageable pageable = PageRequest.of(page, limit, sort);
 
-        // Gọi repository để lấy dữ liệu
         Page<Product> productPage = productRepository.findByCategoryAndStatusNot(category, pageable);
-//        return clearProperties(productPage.getContent());
-        return new ListProductDTO(productPage.getTotalPages(), clearProperties(productPage.getContent()));
+        List<ProductDTO> productDTOList = productMapper.toListDTO(productPage.getContent());
+        return new ListProductDTO(productPage.getTotalPages(), productDTOList);
     }
 
-    public List<Product> getByCategory(String category) {
+    public List<ProductDTO> getByCategory(String category) {
         Category foundCategory = categoryRepository.findByName(category);
+        CategoryDTO categoryDTOList = categoryMapper.toDto(foundCategory);
         if (foundCategory == null) {
             return new ArrayList<>();
         }
         List<Product> products = foundCategory.getProducts();
-        products.forEach(this::clearProperty);
-        return products;
+        return productMapper.toListDTO(products);
     }
 
 

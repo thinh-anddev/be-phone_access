@@ -1,5 +1,6 @@
 package com.TMDT.api.Api.springboot.controllers;
 
+import com.TMDT.api.Api.springboot.dto.ProductDTO;
 import com.TMDT.api.Api.springboot.dto.ProductInsertDTO;
 import com.TMDT.api.Api.springboot.dto.ProductUpdateDTO;
 import com.TMDT.api.Api.springboot.models.Product;
@@ -44,13 +45,12 @@ public class ProductControllers {
 
     @GetMapping("/getByCategory")
     ResponseEntity<ResponseObject> getByCategory(@RequestParam String category) {
-        List<Product> products = productService.getByCategory(category);
-        return ResponseEntity.ok(new ResponseObject("ok", "Success", products));
+        return ResponseEntity.ok(new ResponseObject("ok", "Success", productService.getByCategory(category)));
     }
 
     @GetMapping("/{id}")
     ResponseEntity<ResponseObject> getProductById(@PathVariable int id) {
-        Product foundProduct = productService.getById(id);
+        ProductDTO foundProduct = productService.getById(id);
         return foundProduct != null ?
                 ResponseEntity.status(HttpStatus.OK).body(
                         new ResponseObject("ok", "Success", foundProduct)

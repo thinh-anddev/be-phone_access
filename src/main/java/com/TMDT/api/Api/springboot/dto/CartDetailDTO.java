@@ -1,5 +1,6 @@
 package com.TMDT.api.Api.springboot.dto;
 
+import com.TMDT.api.Api.springboot.models.PhoneCategory;
 import lombok.*;
 
 @Getter
@@ -14,5 +15,6 @@ public class CartDetailDTO {
     private int customerId;
     private int quantity;
     private ProductDTO product;
+    private PhoneCategoryDTO phoneCategory;
 }
 

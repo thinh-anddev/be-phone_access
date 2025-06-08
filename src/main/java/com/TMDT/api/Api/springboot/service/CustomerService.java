@@ -1,7 +1,9 @@
 package com.TMDT.api.Api.springboot.service;
 
+import com.TMDT.api.Api.springboot.dto.CustomerDTO;
 import com.TMDT.api.Api.springboot.dto.UpdateCustomerDTO;
 import com.TMDT.api.Api.springboot.dto.UpdateCustomerPasswordDTO;
+import com.TMDT.api.Api.springboot.mapper.CustomerMapper;
 import com.TMDT.api.Api.springboot.models.Customer;
 import com.TMDT.api.Api.springboot.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,8 @@ import java.util.Random;
 public class CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
-
+    @Autowired
+    private CustomerMapper customerMapper;
     @Autowired
     PasswordEncoder passwordEncoder;
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
@@ -30,21 +33,23 @@ public class CustomerService {
         return clearProperty(Objects.requireNonNull(customerRepository.findById(id).orElse(null)));
     }
 
-    public Customer getByEmail(String email) {
-        return customerRepository.findByEmail(email);
+    public CustomerDTO getByEmail(String email) {
+        return customerMapper.toDto(customerRepository.findByEmail(email));
     }
 
     //    public CustomerDTO getByEmail(String email) {
 //        return customerRepository.findByEmail(email);
 //    }
-    public Customer login(String email, String password) {
+    public CustomerDTO login(String email, String password) {
         Customer foundUser = customerRepository.findByEmail(email);
-        return foundUser != null && passwordEncoder.matches(password, foundUser.getPassword()) ? foundUser : null;
+        CustomerDTO userDTO = customerMapper.toDto(foundUser);
+        return userDTO != null && passwordEncoder.matches(password, userDTO.getPassword()) ? userDTO : null;
     }
 
-    public Customer register(Customer customer) {
-        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
-        return customerRepository.save(customer);
+    public CustomerDTO register(CustomerDTO customerDTO) {
+        customerDTO.setPassword(passwordEncoder.encode(customerDTO.getPassword()));
+        Customer customer = customerMapper.toEntity(customerDTO);
+        return customerMapper.toDto(customerRepository.save(customer));
     }
 
     public Customer forgotPassword(String email) {
@@ -78,8 +83,9 @@ public class CustomerService {
         return password.toString();
     }
 
-    public Customer update(Customer customer) {
-        return customerRepository.save(customer);
+    public CustomerDTO update(CustomerDTO customerDTO) {
+        Customer customer = customerMapper.toEntity(customerDTO);
+        return customerMapper.toDto(customerRepository.save(customer));
     }
 
     public Customer updateInfo(UpdateCustomerDTO customerDTO) {
@@ -92,15 +98,15 @@ public class CustomerService {
         return clearProperty(customerRepository.save(customer));
     }
 
-    public Customer updatePassword(UpdateCustomerPasswordDTO customerDTO) {
-        Customer customer = customerRepository.findById(customerDTO.getId()).orElse(null);
+    public Customer updatePassword(int id, String password, String newPassword) {
+        Customer customer = customerRepository.findById(id).orElse(null);
         if (customer == null) {
             return null;
         }
-        if (!passwordEncoder.matches(customerDTO.getPassword(), customer.getPassword())) {
+        if (!passwordEncoder.matches(password, customer.getPassword())) {
             return null;
         }
-        customer.setPassword(passwordEncoder.encode(customerDTO.getNewPassword()));
+        customer.setPassword(passwordEncoder.encode(newPassword));
         return customerRepository.save(customer);
     }
 

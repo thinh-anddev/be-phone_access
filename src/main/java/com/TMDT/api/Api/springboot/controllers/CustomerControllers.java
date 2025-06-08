@@ -57,7 +57,7 @@ public class CustomerControllers {
     ResponseEntity<ResponseObject> getUserById(@PathVariable int id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        Customer currentCustomer = customerService.getByEmail(email);
+        CustomerDTO currentCustomer = customerService.getByEmail(email);
 
         if (currentCustomer == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject("failed", "Unauthorized", ""));
@@ -73,17 +73,14 @@ public class CustomerControllers {
 
     @PostMapping("/login")
     ResponseEntity<ResponseObject> login(@RequestBody LoginReqDTO loginReqDTO) {
-        Customer foundCustomer = customerService.login(loginReqDTO.getEmail(), loginReqDTO.getPassword());
-        System.out.println(foundCustomer.toString());
-
-        CustomerDTO customerDTO = customerMapper.toDto(foundCustomer);
-        if (foundCustomer == null) {
+        CustomerDTO customerDTO = customerService.login(loginReqDTO.getEmail(), loginReqDTO.getPassword());
+        if (customerDTO == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     new ResponseObject("failed", "Invalid username or password", "")
             );
         }
 
-        String token = jwtService.generateToken(foundCustomer.getEmail());
+        String token = jwtService.generateToken(customerDTO.getEmail());
         Map<String, Object> response = new HashMap<>();
         response.put("customer", customerDTO);
         response.put("token", token);
@@ -94,7 +91,7 @@ public class CustomerControllers {
     }
 
     @PostMapping("/register")
-    ResponseEntity<ResponseObject> register(@RequestBody Customer customer, @RequestParam String verificationCode) {
+    ResponseEntity<ResponseObject> register(@RequestBody CustomerDTO customer, @RequestParam String verificationCode) {
         if (!verificationCodeService.isExist(customer.getEmail(), verificationCode)) {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("failed", "Invalid verification code", "")
@@ -105,7 +102,7 @@ public class CustomerControllers {
                     new ResponseObject("failed", "Email already exists", "")
             );
         }
-        Customer newCustomer = customerService.register(customer);
+        CustomerDTO newCustomer = customerService.register(customer);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok", "Register successful", newCustomer)
         );
@@ -115,8 +112,7 @@ public class CustomerControllers {
     ResponseEntity<ResponseObject> update(@RequestBody UpdateCustomerDTO customerDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-
-        Customer currentCustomer = customerService.getByEmail(email);
+        CustomerDTO currentCustomer = customerService.getByEmail(email);
         if (currentCustomer == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject("failed", "Unauthorized", ""));
         }
@@ -163,7 +159,7 @@ public class CustomerControllers {
     ResponseEntity<ResponseObject> sendForgotPasswordEmail(@RequestParam String email) {
         try {
             String newPassword = customerService.generatePassword();
-            Customer customer = customerService.getByEmail(email);
+            CustomerDTO customer = customerService.getByEmail(email);
             customer.setPassword(newPassword);
             customerService.update(customer);
 
@@ -186,7 +182,7 @@ public class CustomerControllers {
 
     @PostMapping("/forgotPassword")
     ResponseEntity<ResponseObject> forgotPassword(@RequestBody ForgotPasswordDTO forgotPasswordDTO) {
-        Customer customer = customerService.getByEmail(forgotPasswordDTO.getEmail());
+        CustomerDTO customer = customerService.getByEmail(forgotPasswordDTO.getEmail());
         if (customer == null) {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("failed", "Email not found", "")
@@ -209,7 +205,12 @@ public class CustomerControllers {
 
     @PutMapping("/updatePassword")
     ResponseEntity<ResponseObject> updatePassword(@RequestBody UpdateCustomerPasswordDTO customerDTO) {
-        Customer foundCustomer = customerService.updatePassword(customerDTO);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomerDTO currentCustomer = (CustomerDTO) authentication.getPrincipal();
+        if (currentCustomer == null) {
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("failed", "Customer not found", ""));
+        }
+        Customer foundCustomer = customerService.updatePassword(currentCustomer.getId(), customerDTO.getPassword(), customerDTO.getNewPassword());
         return foundCustomer != null ?
                 ResponseEntity.status(HttpStatus.OK).body(
                         new ResponseObject("ok", "Update password successful", "")

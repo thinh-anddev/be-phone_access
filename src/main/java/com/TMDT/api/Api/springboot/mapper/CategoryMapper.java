@@ -5,8 +5,13 @@ import com.TMDT.api.Api.springboot.models.Category;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
     CategoryMapper INSTANCE = Mappers.getMapper(CategoryMapper.class);
+
     CategoryDTO toDto(Category category);
+
+    List<CategoryDTO> toListDto(List<Category> categoryList);
 }

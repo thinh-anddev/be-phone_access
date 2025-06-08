@@ -1,6 +1,6 @@
 package com.TMDT.api.Api.springboot.controllers;
 
-import com.TMDT.api.Api.springboot.dto.ReqOrderDTO;
+import com.TMDT.api.Api.springboot.dto.*;
 import com.TMDT.api.Api.springboot.models.CartDetail;
 import com.TMDT.api.Api.springboot.models.Customer;
 import com.TMDT.api.Api.springboot.models.Order;
@@ -14,6 +14,8 @@ import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
@@ -40,7 +42,7 @@ public class PaymentControllers {
     private EmailService emailService;
 
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderService orderService;
 
     @Autowired
     ProductService productService;
@@ -49,10 +51,13 @@ public class PaymentControllers {
     private OrderDetailRepository orderDetailRepository;
 
     @Autowired
+    OrderDetailService orderDetailService;
+
+    @Autowired
     private CartDetailRepository cartDetailRepository;
 
     @PostMapping("/create_payment")
-    public ResponseEntity<?> createPayment(@RequestBody List<CartDetail> cartDetails, @RequestParam int point, @RequestParam int transportFee) throws UnsupportedEncodingException {
+    public ResponseEntity<?> createPayment(@RequestBody List<CartDetailDTO> cartDetails, @RequestParam int point, @RequestParam int transportFee) throws UnsupportedEncodingException {
         String vnp_TxnRef = PaymentConfig.getRandomNumber(8);
         String vnp_TmnCode = PaymentConfig.vnp_TmnCode;
 
@@ -114,20 +119,20 @@ public class PaymentControllers {
 
     @PostMapping("/payment_success")
     public ResponseEntity<ResponseObject> paymentSuccess(@RequestBody ReqOrderDTO orderDTO) throws MessagingException {
-        Customer customer = customerService.get(orderDTO.getCustomerId());
-        if (customer == null) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomerDTO currentCustomer = (CustomerDTO) authentication.getPrincipal();
+        if (currentCustomer == null) {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("failed", "Customer not found", ""));
         }
 
-        List<CartDetail> cartDetails = cartDetailService.getListCart(orderDTO.getCartDetailIds());
+        List<CartDetailDTO> cartDetailDtos = cartDetailService.getListCart(orderDTO.getCartDetailIds());
+        int total = cartDetailService.calculateTotalAmount(cartDetailDtos);
+        currentCustomer.setPoint((currentCustomer.getPoint() - orderDTO.getPoint()) + total / 1000);
+        customerService.update(currentCustomer);
 
-        int total = cartDetailService.calculateTotalAmount(cartDetails);
-        customer.setPoint((customer.getPoint() - orderDTO.getPoint()) + total / 1000);
-        customerService.update(customer);
-
-        Order order = new Order();
+        OrderDTO order = new OrderDTO();
         order.setAddress(orderDTO.getAddress());
-        order.setCustomer(customer);
+        order.setCustomer(currentCustomer);
         order.setCreateDate(LocalDateTime.now());
         order.setDeliveryId(orderDTO.getDeliveryId());
         order.setDiscount(orderDTO.getPoint() * 1000);
@@ -137,12 +142,12 @@ public class PaymentControllers {
         order.setTotal(total);
         order.setStatus(1);
         order.setShippingFee(orderDTO.getShippingFee());
-        orderRepository.save(order);
+        order = orderService.add(order);
 
-        List<OrderDetail> orderDetails = new ArrayList<>();
-        for (CartDetail cartDetail : cartDetails) {
+        List<OrderDetailDTO> orderDetails = new ArrayList<>();
+        for (CartDetailDTO cartDetail : cartDetailDtos) {
             productService.updateSold(cartDetail.getProduct().getId(), cartDetail.getQuantity());
-            OrderDetail orderDetail = new OrderDetail();
+            OrderDetailDTO orderDetail = new OrderDetailDTO();
             orderDetail.setProduct(cartDetail.getProduct());
             orderDetail.setQuantity(cartDetail.getQuantity());
             orderDetail.setOrder(order);
@@ -152,27 +157,27 @@ public class PaymentControllers {
             orderDetails.add(orderDetail);
         }
 
-        orderDetailRepository.saveAll(orderDetails);
+        orderDetails = orderDetailService.addAll(orderDetails);
         cartDetailRepository.deleteAllById(orderDTO.getCartDetailIds());
         order.setOrderDetails(orderDetails);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
         Map<String, Object> templateModel = new HashMap<>();
-        templateModel.put("name", customer.getUsername());
-        templateModel.put("email", customer.getEmail());
-        templateModel.put("phone", customer.getPhone());
-        templateModel.put("orderId", Optional.of(order.getId()));
+        templateModel.put("name", currentCustomer.getUsername());
+        templateModel.put("email", currentCustomer.getEmail());
+        templateModel.put("phone", currentCustomer.getPhone());
+        templateModel.put("orderId", order.getId());
         templateModel.put("address", order.getAddress());
-        templateModel.put("total", Optional.of(order.getTotal()));
-        templateModel.put("discount", Optional.of(order.getDiscount()));
-        templateModel.put("shippingFee", Optional.of(order.getShippingFee()));
+        templateModel.put("total", order.getTotal());
+        templateModel.put("discount", order.getDiscount());
+        templateModel.put("shippingFee", order.getShippingFee());
         templateModel.put("paymentDate", order.getPaymentDate().format(formatter));
         templateModel.put("status", order.getPaymentStatus() == 2 ? "Unpaid" : "Paid");
         templateModel.put("deliveryId", order.getDeliveryId());
         templateModel.put("orderDetails", orderDetails);
-
-        emailService.sendHtmlEmailPaymentSuccess(customer.getEmail(), "Booking Success", templateModel);
+        System.out.println("======================add success order: " + order.getId() + " for customer email" + currentCustomer.getEmail());
+        emailService.sendHtmlEmailPaymentSuccess(currentCustomer.getEmail(), "Booking Success", templateModel);
         return ResponseEntity.ok(new ResponseObject("ok", "Success", order));
     }
 

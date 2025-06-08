@@ -14,6 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 public class ListProductDTO {
     int totalPage;
-    List<Product> products;
+    List<ProductDTO> products;
 
 }

@@ -25,5 +25,5 @@ public class ProductDTO {
     private List<ImageDTO> images;
     private Category category;
     private int status;
-//    private List<ProductPhoneCategory> productPhoneCategories;
+    private List<ProductPhoneCategoryDTO> productPhoneCategories;
 }
