@@ -28,7 +28,8 @@ public class CartDetailService {
     private CartDetailMapper cartDetailMapper;
 
     public List<CartDetailDTO> getCartByCustomerId(int customerId) {
-        return cartDetailMapper.toDtoList(cartDetailRepository.findByCustomer_Id(customerId));
+        List<CartDetail> cartDetail = cartDetailRepository.findByCustomer_Id(customerId);
+        return cartDetailMapper.toDtoList(cartDetail);
     }
 
 
@@ -36,14 +37,15 @@ public class CartDetailService {
         return clearProperty(Objects.requireNonNull(cartDetailRepository.findById(id).orElse(null)));
     }
 
-    public CartDetail add(CartDetailDTO cartDetailDTO) {
+    public CartDetailDTO add(CartDetailDTO cartDetailDTO) {
         CartDetail cartDetail = new CartDetail();
         cartDetail.setProduct(productRepository.findById(cartDetailDTO.getProductId()).orElse(null));
         cartDetail.setPhoneCategory(phoneCategoryRepository.findById(cartDetailDTO.getPhoneCategoryId()).orElse(null));
         cartDetail.setQuantity(cartDetailDTO.getQuantity());
         cartDetail.setCustomer(customerRepository.findById(cartDetailDTO.getCustomerId()).orElse(null));
         cartDetail.setStatus(1);
-        return cartDetailRepository.save(cartDetail);
+
+        return cartDetailMapper.toDto(cartDetailRepository.save(cartDetail));
     }
 
     public void delete(int id) {
@@ -58,13 +60,13 @@ public class CartDetailService {
         cartDetailRepository.deleteCartDetailByCustomer_Id(customerId);
     }
 
-    public CartDetail update(int id, int quantity) {
+    public CartDetailDTO update(int id, int quantity) {
         CartDetail cartDetail = cartDetailRepository.findById(id).orElse(null);
         if (cartDetail == null) {
             return null;
         }
         cartDetail.setQuantity(quantity);
-        return cartDetailRepository.save(cartDetail);
+        return cartDetailMapper.toDto(cartDetailRepository.save(cartDetail));
     }
 
 
@@ -87,13 +89,13 @@ public class CartDetailService {
         return cartDetails;
     }
 
-    public int calculateTotalAmount(List<CartDetail> cartDetails) {
-        List<CartDetail> cartDetails1 = new ArrayList<>();
-        for (CartDetail cartDetail : cartDetails) {
-            cartDetails1.add(cartDetailRepository.findById(cartDetail.getId()).orElse(null));
+    public int calculateTotalAmount(List<CartDetailDTO> cartDetailDTOs) {
+        List<CartDetailDTO> cartDetails1 = new ArrayList<>();
+        for (CartDetailDTO cartDetail : cartDetailDTOs) {
+            cartDetails1.add(cartDetailMapper.toDto(cartDetailRepository.findById(cartDetail.getId()).orElse(null)));
         }
         int totalAmount = 0;
-        for (CartDetail cartDetail : cartDetails1) {
+        for (CartDetailDTO cartDetail : cartDetails1) {
             if (cartDetail != null) {
                 totalAmount += (int) (cartDetail.getProduct().getPrice() * cartDetail.getQuantity());
             }
@@ -107,7 +109,7 @@ public class CartDetailService {
         return cartDetailMapper.toDto(cartDetailRepository.findByCustomer_IdAndProduct_IdAndPhoneCategory_Id(customerId, productId, phoneCategoryId));
     }
 
-    public List<CartDetail> getListCart(List<Integer> cartDetailIds) {
-        return cartDetailRepository.findAllById(cartDetailIds);
+    public List<CartDetailDTO> getListCart(List<Integer> cartDetailIds) {
+        return cartDetailMapper.toDtoList(cartDetailRepository.findAllById(cartDetailIds));
     }
 }

@@ -9,11 +9,15 @@ import com.TMDT.api.Api.springboot.models.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+import java.util.List;
+
+@Mapper(componentModel = "spring", uses = {ProductPhoneCategoryMapper.class})
 public interface ProductMapper {
-    public ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
+    ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
 
     ProductDTO toDTO(Product product);
+
+    List<ProductDTO> toListDTO(List<Product> products);
 
     Product toProduct(ProductDTO product);
 

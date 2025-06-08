@@ -25,8 +25,5 @@ public class PhoneCategory {
     private String name;
     private int status;
     @OneToMany(mappedBy = "phoneCategory")
-    @JsonBackReference
     private List<ProductPhoneCategory> productPhoneCategories;
-
-
 }
