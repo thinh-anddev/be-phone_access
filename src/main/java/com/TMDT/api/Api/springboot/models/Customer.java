@@ -55,4 +55,7 @@ public class Customer {
                 ", id=" + id +
                 '}';
     }
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    @JsonManagedReference(value = "customer-comment")
+    private List<Comment> comments;
 }

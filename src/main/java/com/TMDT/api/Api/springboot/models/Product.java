@@ -43,4 +43,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product")
     private List<ProductPhoneCategory> productPhoneCategories;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonManagedReference(value = "product-comment")
+    private List<Comment> comments;
 }
