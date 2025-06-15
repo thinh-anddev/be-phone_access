@@ -30,16 +30,16 @@ public class Customer {
     private int status;
 
 
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer",cascade = {CascadeType.ALL})
     @JsonManagedReference(value = "customer-address")
     private List<Address> addresses;
 
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer",cascade = {CascadeType.ALL})
     @JsonBackReference
     private List<Order> orders;
 
 
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer",cascade = {CascadeType.ALL})
     private List<CartDetail> cartDetails;
 
     @Override
