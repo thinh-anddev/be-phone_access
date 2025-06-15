@@ -72,7 +72,7 @@ public class CartControllers {
     public ResponseEntity<ResponseObject> delete(@PathVariable int id) {
         CustomerDTO customer = getCurrentCustomer();
         CartDetailDTO cartDetail = cartDetailMapper.toDto(cartDetailService.get(id));
-        if (cartDetail == null || cartDetail.getCustomerId() != customer.getId()) {
+        if (cartDetail == null) {
             return ResponseEntity.status(403).body(new ResponseObject("failed", "Unauthorized", null));
         }
         cartDetailService.delete(id);
