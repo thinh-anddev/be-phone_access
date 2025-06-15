@@ -48,8 +48,18 @@ public class CustomerControllers {
 
     // get /api/v1/users/getAll
     @GetMapping("/getAll")
-    public ResponseEntity<ResponseObject> getUsers() {
-        return ResponseEntity.ok(new ResponseObject("ok", "Success", customerService.getAllCustomer()));
+    public ResponseEntity<ResponseObject> getAllCustomers() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        // Kiểm tra người dùng có tồn tại không
+        CustomerDTO currentCustomer = customerService.getByEmail(email);
+
+        // Lấy danh sách khách hàng và chuyển thành DTO
+        List<Customer> customers = customerService.getAllCustomer(); // giả sử trả về List<Customer>
+        List<CustomerDTO> customerDTOs = customerMapper.toListDto(customers); // cần có hàm ánh xạ
+
+        return ResponseEntity.ok(new ResponseObject("ok", "Success", customerDTOs));
     }
 
     // /api/v1/products/1
@@ -219,4 +229,19 @@ public class CustomerControllers {
                         new ResponseObject("failed", "Update password fail", "")
                 );
     }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<ResponseObject> deleteUser(@PathVariable int id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        CustomerDTO currentCustomer = customerService.getByEmail(email);
+
+        boolean isDeleted = customerService.deleteById(id);
+        if (isDeleted) {
+            return ResponseEntity.ok(new ResponseObject("ok", "Delete user successful", null));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseObject("failed", "User not found", null));
+        }
+    }
+
 }

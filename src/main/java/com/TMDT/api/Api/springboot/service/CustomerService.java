@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -123,6 +124,14 @@ public class CustomerService {
             });
         }
         return customer;
+    }
+    public boolean deleteById(int id) {
+        Optional<Customer> customer = customerRepository.findById(id);
+        if (customer.isPresent()) {
+            customerRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
     public List<Customer> clearProperties(List<Customer> customers) {

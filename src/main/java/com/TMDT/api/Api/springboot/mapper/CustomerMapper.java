@@ -6,6 +6,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface CustomerMapper {
     CustomerMapper INSTANCE = Mappers.getMapper(CustomerMapper.class);
@@ -16,4 +18,6 @@ public interface CustomerMapper {
     CustomerDTO toDto(Customer customer);
 
     Customer toEntity(CustomerDTO customerDTO);
+    List<CustomerDTO> toListDto(List<Customer> customers);
+    List<Customer> toListEntity(List<CustomerDTO> dtos);
 }
