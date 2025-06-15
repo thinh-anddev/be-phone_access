@@ -35,7 +35,9 @@ public class SecurityConfig {
                                 "/api/v1/products/getByFilter",
                                 "/api/v1/carts/getTotalPrice",
                                 "/api/v1/products/{id}",
-                                "/api/v1/products/search"
+                                "/api/v1/products/search",
+                                "/js/**",
+                                "/api/v1/resources/vnpay-timer-fix.js"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
