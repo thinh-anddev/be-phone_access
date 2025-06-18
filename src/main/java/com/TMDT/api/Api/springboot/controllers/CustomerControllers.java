@@ -3,6 +3,7 @@ package com.TMDT.api.Api.springboot.controllers;
 import com.TMDT.api.Api.springboot.dto.*;
 import com.TMDT.api.Api.springboot.mapper.CustomerMapper;
 import com.TMDT.api.Api.springboot.models.Customer;
+import com.TMDT.api.Api.springboot.models.Order;
 import com.TMDT.api.Api.springboot.models.VerificationCode;
 import com.TMDT.api.Api.springboot.repositories.CustomerRepository;
 import com.TMDT.api.Api.springboot.service.CustomerService;
@@ -46,6 +47,11 @@ public class CustomerControllers {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    private CustomerDTO getCurrentCustomer() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (CustomerDTO) authentication.getPrincipal();
+    }
+
     // get /api/v1/users/getAll
     @GetMapping("/getAll")
     public ResponseEntity<ResponseObject> getAllCustomers() {
@@ -87,6 +93,12 @@ public class CustomerControllers {
         if (customerDTO == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     new ResponseObject("failed", "Invalid username or password", "")
+            );
+        }
+
+        if (customerDTO.getStatus() == 1) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("inactive", "account inactive", "")
             );
         }
 
@@ -229,6 +241,7 @@ public class CustomerControllers {
                         new ResponseObject("failed", "Update password fail", "")
                 );
     }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<ResponseObject> deleteUser(@PathVariable int id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -242,6 +255,26 @@ public class CustomerControllers {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new ResponseObject("failed", "User not found", null));
         }
+    }
+
+    @PutMapping("/updateRole")
+    public ResponseEntity<ResponseObject> updateRole(@RequestBody UpdateRoleDTO updateRoleDTO) {
+        CustomerDTO currentCustomer = getCurrentCustomer();
+        if (currentCustomer.getRole() != 1) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject("ok", "Order status updated", ""));
+        }
+        CustomerDTO customerDTO = customerService.updateRole(updateRoleDTO.getId(), updateRoleDTO.getRole());
+        return ResponseEntity.ok(new ResponseObject("ok", "Role updated", customerDTO));
+    }
+
+    @PutMapping("/updateStatus")
+    public ResponseEntity<ResponseObject> updateRole(@RequestBody UpdateStatusDTO updateStatusDTO) {
+        CustomerDTO currentCustomer = getCurrentCustomer();
+        if (currentCustomer.getRole() != 1) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseObject("ok", "Order status updated", ""));
+        }
+        CustomerDTO customerDTO = customerService.updateStatus(updateStatusDTO.getId(), updateStatusDTO.getStatus());
+        return ResponseEntity.ok(new ResponseObject("ok", "Role updated", customerDTO));
     }
 
 }

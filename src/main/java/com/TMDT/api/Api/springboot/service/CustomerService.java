@@ -5,8 +5,11 @@ import com.TMDT.api.Api.springboot.dto.UpdateCustomerDTO;
 import com.TMDT.api.Api.springboot.dto.UpdateCustomerPasswordDTO;
 import com.TMDT.api.Api.springboot.mapper.CustomerMapper;
 import com.TMDT.api.Api.springboot.models.Customer;
+import com.TMDT.api.Api.springboot.models.Order;
 import com.TMDT.api.Api.springboot.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +36,7 @@ public class CustomerService {
     public Customer get(int id) {
         return clearProperty(Objects.requireNonNull(customerRepository.findById(id).orElse(null)));
     }
+
 
     public CustomerDTO getByEmail(String email) {
         return customerMapper.toDto(customerRepository.findByEmail(email));
@@ -125,6 +129,7 @@ public class CustomerService {
         }
         return customer;
     }
+
     public boolean deleteById(int id) {
         Optional<Customer> customer = customerRepository.findById(id);
         if (customer.isPresent()) {
@@ -139,5 +144,19 @@ public class CustomerService {
             clearProperty(customer);
         }
         return customers;
+    }
+
+    public CustomerDTO updateRole(int id, int role) {
+
+        Customer customer = customerRepository.findById(id).get();
+        customer.setRole(role);
+        return customerMapper.toDto(customerRepository.save(customer));
+    }
+
+    public CustomerDTO updateStatus(int id, int status) {
+
+        Customer customer = customerRepository.findById(id).get();
+        customer.setStatus(status);
+        return customerMapper.toDto(customerRepository.save(customer));
     }
 }
