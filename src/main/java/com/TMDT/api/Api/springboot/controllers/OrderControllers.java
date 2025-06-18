@@ -2,6 +2,7 @@ package com.TMDT.api.Api.springboot.controllers;
 
 import com.TMDT.api.Api.springboot.dto.CustomerDTO;
 import com.TMDT.api.Api.springboot.dto.OrderDTO;
+import com.TMDT.api.Api.springboot.dto.UpdateStatusDTO;
 import com.TMDT.api.Api.springboot.mapper.OrderMapper;
 import com.TMDT.api.Api.springboot.models.Order;
 import com.TMDT.api.Api.springboot.service.CustomerService;
@@ -76,9 +77,24 @@ public class OrderControllers {
     }
 
     @PostMapping("/updateStatus")
-    public ResponseEntity<ResponseObject> updateStatus(@RequestParam int orderId, @RequestParam int status) {
-        Order updated = orderService.updateStatus(orderId, status);
+    public ResponseEntity<ResponseObject> updateStatus(@RequestBody UpdateStatusDTO updateStatusDTO) {
+        Order updated = orderService.updateStatus(updateStatusDTO.getId(), updateStatusDTO.getStatus());
         OrderDTO updatedDTO = orderMapper.toDto(updated);
         return ResponseEntity.ok(new ResponseObject("ok", "Order status updated", updatedDTO));
+    }
+
+    @GetMapping("/revenueByYear")
+    public ResponseEntity<ResponseObject> getRevenueByYear(@RequestParam int year) {
+        return ResponseEntity.ok(new ResponseObject("ok", "success", orderService.getRevenueByYear(year)));
+    }
+
+    @GetMapping("/getAllYear")
+    public ResponseEntity<ResponseObject> getAllYear() {
+        return ResponseEntity.ok(new ResponseObject("ok", "success", orderService.getAllYear()));
+    }
+
+    @GetMapping("/revenueByCategory")
+    public ResponseEntity<ResponseObject> getRevenueByCategory(@RequestParam int year, @RequestParam int month) {
+        return ResponseEntity.ok(new ResponseObject("ok", "success", orderService.getRevenueByCategory(year, month)));
     }
 }

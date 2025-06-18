@@ -65,7 +65,7 @@ public class PaymentControllers {
         vnp_Params.put("vnp_Version", PaymentConfig.vnp_Version);
         vnp_Params.put("vnp_Command", PaymentConfig.vnp_Command);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf((cartDetailService.calculateTotalAmount(cartDetails) - point * 1000 + transportFee) * 100));
+        vnp_Params.put("vnp_Amount", String.valueOf((cartDetailService.calculateTotalAmount(cartDetails) - point * 100 + transportFee) * 100));
         vnp_Params.put("vnp_CurrCode", "VND");
 //        vnp_Params.put("vnp_BankCode", "VNBANK");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
