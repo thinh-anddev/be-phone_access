@@ -7,4 +7,6 @@ public class CommentDTO {
     private int productId;
     private int customerId;
     private String content;
+    String username;
+    String createdAt;
 }
