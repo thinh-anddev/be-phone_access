@@ -3,6 +3,7 @@ package com.TMDT.api.Api.springboot.controllers;
 import com.TMDT.api.Api.springboot.dto.AddressDTO;
 import com.TMDT.api.Api.springboot.dto.CustomerDTO;
 import com.TMDT.api.Api.springboot.mapper.AddressMapper;
+import com.TMDT.api.Api.springboot.mapper.CustomerMapper;
 import com.TMDT.api.Api.springboot.models.Address;
 import com.TMDT.api.Api.springboot.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ public class AddressControllers {
     AddressService addressService;
     @Autowired
     AddressMapper addressMapper;
+    @Autowired
+    CustomerMapper customerMapper;
 
     @GetMapping("/getAddressByCustomerId/{customerId}")
     public ResponseEntity<ResponseObject> getAddressByCustomerId(@PathVariable int customerId) {
@@ -56,7 +59,7 @@ public class AddressControllers {
         }
 
         Address newAddress = addressMapper.toEntity(addressDTO);
-
+        newAddress.setCustomer(customerMapper.toEntity(currentCustomer));
         Address saved = addressService.add(newAddress);
         AddressDTO savedDTO = addressMapper.toDto(saved);
 
@@ -81,7 +84,7 @@ public class AddressControllers {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new ResponseObject("failed", "You do not have permission to update this address", null));
         }
-
+        toUpdate.setCustomer(customerMapper.toEntity(currentCustomer));
         Address updated = addressService.update(toUpdate);
         AddressDTO updatedDTO = addressMapper.toDto(updated);
 
