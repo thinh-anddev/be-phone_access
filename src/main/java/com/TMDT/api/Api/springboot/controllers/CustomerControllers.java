@@ -90,6 +90,10 @@ public class CustomerControllers {
     @PostMapping("/login")
     ResponseEntity<ResponseObject> login(@RequestBody LoginReqDTO loginReqDTO) {
         CustomerDTO customerDTO = customerService.login(loginReqDTO.getEmail(), loginReqDTO.getPassword());
+        if( customerDTO == null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("failed", "Invalid email or password", ""));
+        }
 
         if (customerDTO.getStatus() == 1) {
             return ResponseEntity.status(HttpStatus.OK).body(
